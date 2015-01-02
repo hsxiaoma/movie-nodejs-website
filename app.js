@@ -1,9 +1,14 @@
 var express = require('express');
 var path = require('path');
+var mongoose = require('mongoose');
+var _ =require('underscore');
+var Movie = require('./models/movie');
 var bodyParser = require('body-parser');
 var port = process.env.PORT || 3000;
 
 var app = express();
+
+mongoose.connect('mongodb://localhost/imooc');
 
 app.set('views','./views/pages');
 app.set('view engine','jade');
@@ -15,51 +20,28 @@ app.listen(port);
 console.log('项目启动start于端口'+port);
 
 app.get('/',function(req,res){
-  res.render('index',{
-    title:'鼎力厂房网首页',
-    movies: [{
-      title:'奇妙世纪 08 梦的还原器',
-      _id: 1,
-      poster:'http://r3.ykimg.com/05410408548589706A0A4160AF2742DF'
-    },{
-      title:'奇妙世纪 08 梦的还原器',
-      _id: 2,
-      poster:'http://r3.ykimg.com/05410408548589706A0A4160AF2742DF'
-    },{
-      title:'奇妙世纪 08 梦的还原器',
-      _id: 3,
-      poster:'http://r3.ykimg.com/05410408548589706A0A4160AF2742DF'
-    },{
-      title:'奇妙世纪 08 梦的还原器',
-      _id: 4,
-      poster:'http://r3.ykimg.com/05410408548589706A0A4160AF2742DF'
-    },{
-      title:'奇妙世纪 08 梦的还原器',
-      _id: 5,
-      poster:'http://r3.ykimg.com/05410408548589706A0A4160AF2742DF'
-    },{
-      title:'奇妙世纪 08 梦的还原器',
-      _id: 6,
-      poster:'http://r3.ykimg.com/05410408548589706A0A4160AF2742DF'
-    }]
+  Movie.fetch(function(err,movies){
+    if(err){
+      console.log(err)
+    }
+    res.render('index',{
+      title:'鼎力厂房网首页',
+      movies: movies
+    });
   });
+
 });
 
 //detail
 app.get('/movie/:id',function(req,res){
-  res.render('detail',{
-    title:'imooc 详情页',
-    movie: {
-      title: '奇妙世纪 08 梦的还原器',
-      doctor: '程亮/林博',
-      country: '大陆',
-      year: 2014,
-      language: '汉语',
-      poster: 'http://r3.ykimg.com/05410408548589706A0A4160AF2742DF',
-      flash: 'http://player.youku.com/player.php/sid/XODQ0NDk4MTA0/v.swf',
-      summary: '《奇妙世纪》是由啼声影视与优酷出品共同打造的中国首部原创都市奇幻单元剧。'
-    }
+  var id = req.params.id;
+  Movie.findById(id,function(err,movie){
+    res.render('detail',{
+      title:'imooc' + movie.title,
+      movie: movie
+    });
   });
+
 });
 
 //admin page
@@ -79,20 +61,67 @@ app.get('/admin/movie',function(req,res){
   });
 });
 
+//admin update
+app.get('/admin/update/:id',function(){
+  var id = req.params.id
+  if(id){
+    Movie.findById(id,function(){
+      rea.render('admin',{
+        title:'后台更新也',
+        movie:movie
+      })
+    });
+  }
+});
+
+//admin post movie
+app.post('/admin/movie/new',function(){
+  var id =req.body.movie._id;
+  var movieObj = req.body.movie;
+
+  if(id!=='undefined'){
+    Movie.findById(id,function(){
+      if(err){
+        console.log(err);
+      }
+      _movie = _.extends(movie,movieObj);
+      _movie.save(function(err,movie){
+        if(err){
+          console.log(err);
+        }
+        res.redirect('/movie/' + movie._id);
+      })
+    });
+  }else{
+    _movie = new Movie({
+      doctor:movieObj.doctor,
+      title:movieObj.title,
+      country:movieObj.country,
+      language:movieObj.language,
+      year:movieObj.year,
+      poster:movieObj.poster,
+      summary:movieObj.summary,
+      flash:movieObj.flash
+    });
+    _movie.save(function(err,movie){
+      if(err){
+        console.log(err);
+      }
+      res.redirect('/movie/' + movie._id);
+    });
+
+  }
+});
+
 //list page
 app.get('/admin/list',function(req,res){
-  res.render('index',{
-    title:'imooc 列表页',
-    movies: [{
-      _id: 1,
-      title: '奇妙世纪 08 梦的还原器',
-      doctor: '程亮/林博',
-      country: '大陆',
-      year: 2014,
-      language: '汉语',
-      summary: '《奇妙世纪》是由啼声影视与优酷出品共同打造的中国首部原创都市奇幻单元剧。',
-      poster: 'http://r3.ykimg.com/05410408548589706A0A4160AF2742DF',
-      flash: 'http://player.youku.com/player.php/sid/XODQ0NDk4MTA0/v.swf'
-    }]
+    Movie.fetch(function(err,movies){
+    if(err){
+      console.log(err)
+    }
+    res.render('list',{
+      title:'鼎力厂房网首页',
+      movies: movies
+    });
   });
 });
