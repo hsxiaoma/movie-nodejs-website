@@ -1,0 +1,32 @@
+{
+  "name": "dingli-website",
+  "version": "1.0.0",
+  "description": "nodejs dependence",
+  "main": "app.js",
+  "dependencies": {
+    "body-parser": "^1.10.0",
+    "mongoose": "^3.8.8",
+    "underscore": "^1.7.0",
+    "jade": "^1.8.2",
+    "moment": "^2.8.4",
+    "express": "^4.10.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/panyifei/dingli-website.git"
+  },
+  "keywords": [
+    "dingli",
+    "nodejs"
+  ],
+  "author": "panyifei",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/panyifei/dingli-website/issues"
+  },
+  "homepage": "https://github.com/panyifei/dingli-website"
+}
