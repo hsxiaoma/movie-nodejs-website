@@ -2,7 +2,7 @@ var express = require('express');
 var path = require('path');
 var mongoose = require('mongoose');
 var _ =require('underscore');
-var Movie = require('./models/movie');
+var Movie = require('./models/movie.js');
 var bodyParser = require('body-parser');
 var port = process.env.PORT || 3000;
 
@@ -12,9 +12,10 @@ mongoose.connect('mongodb://localhost/imooc');
 
 app.set('views','./views/pages');
 app.set('view engine','jade');
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }))
 //这里是静态文件
 app.use(express.static(path.join(__dirname,'bower_components')));
+app.locals.moment = require('moment');
 app.listen(port);
 
 console.log('项目启动start于端口'+port);
@@ -25,7 +26,7 @@ app.get('/',function(req,res){
       console.log(err)
     }
     res.render('index',{
-      title:'鼎力厂房网首页',
+      title:'testtest',
       movies: movies
     });
   });
@@ -37,7 +38,7 @@ app.get('/movie/:id',function(req,res){
   var id = req.params.id;
   Movie.findById(id,function(err,movie){
     res.render('detail',{
-      title:'imooc' + movie.title,
+      title:'imooc',
       movie: movie
     });
   });
@@ -46,7 +47,7 @@ app.get('/movie/:id',function(req,res){
 
 //admin page
 app.get('/admin/movie',function(req,res){
-  res.render('index',{
+  res.render('admin',{
     title:'imooc 后台录入页',
     movie: {
       title: ' ',
@@ -61,13 +62,13 @@ app.get('/admin/movie',function(req,res){
   });
 });
 
-//admin update
-app.get('/admin/update/:id',function(){
-  var id = req.params.id
+//admin update movie
+app.get('/admin/update/:id',function(req,res){
+  var id = req.params.id;
   if(id){
-    Movie.findById(id,function(){
-      rea.render('admin',{
-        title:'后台更新也',
+    Movie.findById(id,function(err,movie){
+      res.render('admin',{
+        title:'后台更新页',
         movie:movie
       })
     });
@@ -75,16 +76,16 @@ app.get('/admin/update/:id',function(){
 });
 
 //admin post movie
-app.post('/admin/movie/new',function(){
+app.post('/admin/movie/new',function(req,res){
   var id =req.body.movie._id;
   var movieObj = req.body.movie;
 
   if(id!=='undefined'){
-    Movie.findById(id,function(){
+    Movie.findById(id,function(err,movie){
       if(err){
         console.log(err);
       }
-      _movie = _.extends(movie,movieObj);
+      _movie = _.extend(movie, movieObj);
       _movie.save(function(err,movie){
         if(err){
           console.log(err);
@@ -115,7 +116,7 @@ app.post('/admin/movie/new',function(){
 
 //list page
 app.get('/admin/list',function(req,res){
-    Movie.fetch(function(err,movies){
+  Movie.fetch(function(err,movies){
     if(err){
       console.log(err)
     }

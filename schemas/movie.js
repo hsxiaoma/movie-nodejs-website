@@ -1,4 +1,4 @@
-var mongoose = requore('mongoose');
+var mongoose = require('mongoose');
 
 var MovieSchema = new mongoose.Schema({
   doctor:String,
@@ -11,8 +11,13 @@ var MovieSchema = new mongoose.Schema({
   year:Number,
   meta:{
     createAt:{
-
+      type:Date,
+      default:Date.now()
     },
+    updateAt:{
+      type:Date,
+      default:Date.now()
+    }
   }
 })
 
@@ -40,4 +45,4 @@ MovieSchema.statics = {
   }
 }
 
-module.export = MovieSchema;
+module.exports = MovieSchema;
