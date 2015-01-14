@@ -3,6 +3,7 @@ var path = require('path');
 var mongoose = require('mongoose');
 var _ =require('underscore');
 var Movie = require('./models/movie.js');
+var User = require('./models/user');
 var bodyParser = require('body-parser');
 var port = process.env.PORT || 3000;
 
@@ -30,7 +31,70 @@ app.get('/',function(req,res){
       movies: movies
     });
   });
+});
 
+//signup
+app.post('/user/signup',function(req,res){
+  var _user = req.body.user;
+
+  User.find({name:_user.name},function(err,user){
+    if(err){
+      console.log(err);
+    }
+    if(user.length!=[]){
+      return res.redirect('/')
+    }else{
+      var user = new User(_user);
+      user.save(function(err,user){
+        if(err){
+          console.log(err);
+        }
+        res.redirect('/admin/userlist')
+      });
+    }
+  });
+
+});
+
+
+//signin
+app.post('/user/signin',function(req,res){
+  var _user = req.body.user;
+  var name = _user.name;
+  var password = _user.password;
+  User.findOne({name:name},function(err,user){
+    if(err){
+      console.log(err);
+    }
+    if(!user){
+      return res.redirect('/');
+    }
+    user.comparePassword(password,function(err,isMatch){
+      if(err){
+        console.log(err);
+      }
+      if(isMatch){
+        console.log('Password is matched');
+        return res.redirect('/');
+      }else{
+        console.log('Password is not matched');
+      }
+    })
+  });
+
+});
+
+//user list page
+app.get('/admin/userlist',function(req,res){
+  User.fetch(function(err,users){
+    if(err){
+      console.log(err)
+    }
+    res.render('userlist',{
+      title:'鼎力厂房网首页',
+      users: users
+    });
+  });
 });
 
 //detail

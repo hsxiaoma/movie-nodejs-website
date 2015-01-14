@@ -31,6 +31,9 @@ MovieSchema.pre('save',function(next){
   next();
 });
 
+
+
+
 MovieSchema.statics = {
   fetch: function(cb){
     return this
