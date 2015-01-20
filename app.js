@@ -5,7 +5,11 @@ var _ =require('underscore');
 var Movie = require('./models/movie.js');
 var User = require('./models/user');
 var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser')
+var session = require('express-session')
+
 var port = process.env.PORT || 3000;
+
 
 var app = express();
 
@@ -14,6 +18,11 @@ mongoose.connect('mongodb://localhost/imooc');
 app.set('views','./views/pages');
 app.set('view engine','jade');
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(cookieParser())
+app.use(session({
+  secret: 'imooc'
+}))
+
 //这里是静态文件
 app.use(express.static(path.join(__dirname,'public')));
 app.locals.moment = require('moment');
@@ -21,7 +30,11 @@ app.listen(port);
 
 console.log('项目启动start于端口'+port);
 
+
 app.get('/',function(req,res){
+  console.log('user in session');
+  console.log(req.session.user);
+
   Movie.fetch(function(err,movies){
     if(err){
       console.log(err)
@@ -74,6 +87,7 @@ app.post('/user/signin',function(req,res){
         console.log(err);
       }
       if(isMatch){
+        req.session.user= user;
         console.log('Password is matched');
         return res.redirect('/');
       }else{
